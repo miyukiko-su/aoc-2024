@@ -20,6 +20,29 @@ fun String.md5() = BigInteger(1, MessageDigest.getInstance("MD5").digest(toByteA
  */
 fun Any?.println() = println(this)
 
+fun runPart(dayId: String, partId: String, executor: (List<String>) -> Int) {
+    execute(
+        executor = executor,
+        testDataPath = "${dayId}_test-data.txt",
+        testResultPath = "${dayId}_test-result_${partId}.txt",
+        realDataPath = "${dayId}_real-data.txt"
+    )
+}
+
+fun execute(executor: (List<String>) -> Int, testDataPath: String, testResultPath: String, realDataPath: String) {
+    val testInput = readInput(testDataPath)
+    val testResult = executor(testInput)
+
+    val expectedResult = readInput(testResultPath).first().toInt()
+    "Expected result for the test data: $expectedResult".println()
+    "Received result for the test data: $testResult".println()
+    check(testResult == expectedResult)
+
+    val realInput = readInput(realDataPath)
+    val result = executor(realInput)
+    "Result for the actual data: $result".println()
+}
+
 fun MutableList<Int>.insertWithAscendingOrder(newElement: Int) {
     if (this.size == 0) {
         this.add(newElement)

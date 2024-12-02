@@ -1,29 +1,6 @@
 fun main() {
-    fun runPart(partId: String, executor: (List<String>) -> Int) {
-        execute(
-            executor = executor,
-            testDataPath = "Day01_test-data.txt",
-            testResultPath = "Day01_test-result_${partId}.txt",
-            realDataPath = "Day01_real-data.txt"
-        )
-    }
-
-    runPart("part1", ::calculateDifferenceScore)
-    runPart("part2", ::calculateSimilarityScore)
-}
-
-fun execute(executor: (List<String>) -> Int, testDataPath: String, testResultPath: String, realDataPath: String) {
-    val testInput = readInput(testDataPath)
-    val testResult = executor(testInput)
-
-    val expectedResult = readInput(testResultPath).first().toInt()
-    "Expected result for the test data: $expectedResult".println()
-    "Received result for the test data: $testResult".println()
-    check(testResult == expectedResult)
-
-    val realInput = readInput(realDataPath)
-    val result = executor(realInput)
-    "Result for the actual data: $result".println()
+    runPart("Day01", "part1", ::calculateDifferenceScore)
+    runPart("Day01", "part2", ::calculateSimilarityScore)
 }
 
 fun calculateDifferenceScore(inputLines: List<String>): Int {
