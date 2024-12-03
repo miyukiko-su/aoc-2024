@@ -1,43 +1,79 @@
 fun main() {
-    runPart("Day03", "part1", ::addUpAllMultiplicationSumResults)
-//    runPart("Day03", "part2", ::countAlmostSafeReports)
+    execute(
+        executor = ::addUpAllMultiplicationSumResults,
+        testDataPath = "Day03_test-data_part1.txt",
+        testResultPath = "Day03_test-result_part1.txt",
+        realDataPath = "Day03_real-data.txt"
+    )
+    execute(
+        executor = ::addUpAllMultiplicationSumResultsWithConditions,
+        testDataPath = "Day03_test-data_part2.txt",
+        testResultPath = "Day03_test-result_part2.txt",
+        realDataPath = "Day03_real-data.txt"
+    )
 }
 
-fun addUpAllMultiplicationSumResults(inputLines: List<String>): Int {
-    var totalSum = 0
+fun addUpAllMultiplicationSumResults(inputLines: List<String>): Int =
+    addUpAllMultiplicationSumResultsInternal(inputLines)
 
-    inputLines.forEach { line ->
-        val sum = sumUpMultiplicationsForLine(line)
-        totalSum += sum
-    }
+fun addUpAllMultiplicationSumResultsWithConditions(inputLines: List<String>): Int =
+    addUpAllMultiplicationSumResultsInternal(inputLines, isConditionActive = true)
 
-    return totalSum
-}
+fun addUpAllMultiplicationSumResultsInternal(inputLines: List<String>, isConditionActive: Boolean = false): Int {
+    var totalSumResult = 0
 
-fun sumUpMultiplicationsForLine(inputLine: String): Int {
-    var totalResult = 0
+    var isMultiplicationEnabled = true
 
-    for (i in 0..(inputLine.length - 8)) {
-        if (inputLine[i] != 'm') continue
+    inputLines.forEach { inputLine ->
+        var totalSumForLine = 0
 
-        var closingBracketIndex: Int? = null
-        for (j in i + 7..(if (i+11 < inputLine.length) i + 11 else inputLine.length - 1)) {
-            if (inputLine[j] != ')') continue
+        for (i in 0..(inputLine.length - 8)) {
+            if (isConditionActive) {
+                if (isMultiplicationEnabled) {
+                    if (inputLine[i] == 'd' &&
+                        inputLine[i + 1] == 'o' &&
+                        inputLine[i + 2] == 'n' &&
+                        inputLine[i + 3] == '\'' &&
+                        inputLine[i + 4] == 't' &&
+                        inputLine[i + 5] == '(' &&
+                        inputLine[i + 6] == ')') {
+                        isMultiplicationEnabled = false
+                        continue
+                    }
+                }
+                else {
+                    if (inputLine[i] != 'd' ||
+                        inputLine[i + 1] != 'o' ||
+                        inputLine[i + 2] != '(' ||
+                        inputLine[i + 3] != ')') continue
+                    isMultiplicationEnabled = true
+                    continue
+                }
+            }
 
-            closingBracketIndex = j
-            break
+            if (inputLine[i] != 'm') continue
+
+            var closingBracketIndex: Int? = null
+            for (j in i + 7..(if (i+11 < inputLine.length) i + 11 else inputLine.length - 1)) {
+                if (inputLine[j] != ')') continue
+
+                closingBracketIndex = j
+                break
+            }
+
+            if (closingBracketIndex == null) continue
+
+            val substring = inputLine.substring(i, closingBracketIndex + 1)
+            val pairSearchResult = tryGetMultiplicationPair(substring) ?: continue
+
+            val (n1, n2) = pairSearchResult
+            totalSumForLine += n1 * n2
         }
 
-        if (closingBracketIndex == null) continue
-
-        val substring = inputLine.substring(i, closingBracketIndex + 1)
-        val pairSearchResult = tryGetMultiplicationPair(substring) ?: continue
-
-        val (n1, n2) = pairSearchResult
-        totalResult += n1 * n2
+        totalSumResult += totalSumForLine
     }
 
-    return totalResult
+    return totalSumResult
 }
 
 fun tryGetMultiplicationPair(stringFragment: String): Pair<Int, Int>? {
@@ -60,7 +96,6 @@ fun tryGetMultiplicationPair(stringFragment: String): Pair<Int, Int>? {
     if (numberRaw1.any { !it.isDigit() } || numberRaw2.any { !it.isDigit() }) return null
 
     val numbersPair = Pair(numberRaw1.toInt(), numberRaw2.toInt())
-    numbersPair.println()
 
     return numbersPair
 }
